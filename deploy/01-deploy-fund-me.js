@@ -56,9 +56,5 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
 
   log("-----------------------------------------");
 
-<<<<<<< HEAD
-  module.exports.tags = ["all, fundMe"];
-=======
   module.exports.tags = ["all", "fundMe"];
->>>>>>> dffd6d5 (minor-fixes)
 };
