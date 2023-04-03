@@ -1,0 +1,53 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "@chainlink/contracts/src/v0.8/interfaces/AggregatorInterface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ninterface AggregatorInterface {\n  function latestAnswer() external view returns (int256);\n\n  function latestTimestamp() external view returns (uint256);\n\n  function latestRound() external view returns (uint256);\n\n  function getAnswer(uint256 roundId) external view returns (int256);\n\n  function getTimestamp(uint256 roundId) external view returns (uint256);\n\n  event AnswerUpdated(int256 indexed current, uint256 indexed roundId, uint256 updatedAt);\n\n  event NewRound(uint256 indexed roundId, address indexed startedBy, uint256 startedAt);\n}\n"
+    },
+    "@chainlink/contracts/src/v0.8/interfaces/AggregatorV2V3Interface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\nimport \"./AggregatorInterface.sol\";\nimport \"./AggregatorV3Interface.sol\";\n\ninterface AggregatorV2V3Interface is AggregatorInterface, AggregatorV3Interface {}\n"
+    },
+    "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\ninterface AggregatorV3Interface {\n  function decimals() external view returns (uint8);\n\n  function description() external view returns (string memory);\n\n  function version() external view returns (uint256);\n\n  function getRoundData(uint80 _roundId)\n    external\n    view\n    returns (\n      uint80 roundId,\n      int256 answer,\n      uint256 startedAt,\n      uint256 updatedAt,\n      uint80 answeredInRound\n    );\n\n  function latestRoundData()\n    external\n    view\n    returns (\n      uint80 roundId,\n      int256 answer,\n      uint256 startedAt,\n      uint256 updatedAt,\n      uint80 answeredInRound\n    );\n}\n"
+    },
+    "@chainlink/contracts/src/v0.8/tests/MockV3Aggregator.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0;\n\nimport \"../interfaces/AggregatorV2V3Interface.sol\";\n\n/**\n * @title MockV3Aggregator\n * @notice Based on the FluxAggregator contract\n * @notice Use this contract when you need to test\n * other contract's ability to read data from an\n * aggregator contract, but how the aggregator got\n * its answer is unimportant\n */\ncontract MockV3Aggregator is AggregatorV2V3Interface {\n  uint256 public constant override version = 0;\n\n  uint8 public override decimals;\n  int256 public override latestAnswer;\n  uint256 public override latestTimestamp;\n  uint256 public override latestRound;\n\n  mapping(uint256 => int256) public override getAnswer;\n  mapping(uint256 => uint256) public override getTimestamp;\n  mapping(uint256 => uint256) private getStartedAt;\n\n  constructor(uint8 _decimals, int256 _initialAnswer) {\n    decimals = _decimals;\n    updateAnswer(_initialAnswer);\n  }\n\n  function updateAnswer(int256 _answer) public {\n    latestAnswer = _answer;\n    latestTimestamp = block.timestamp;\n    latestRound++;\n    getAnswer[latestRound] = _answer;\n    getTimestamp[latestRound] = block.timestamp;\n    getStartedAt[latestRound] = block.timestamp;\n  }\n\n  function updateRoundData(\n    uint80 _roundId,\n    int256 _answer,\n    uint256 _timestamp,\n    uint256 _startedAt\n  ) public {\n    latestRound = _roundId;\n    latestAnswer = _answer;\n    latestTimestamp = _timestamp;\n    getAnswer[latestRound] = _answer;\n    getTimestamp[latestRound] = _timestamp;\n    getStartedAt[latestRound] = _startedAt;\n  }\n\n  function getRoundData(uint80 _roundId)\n    external\n    view\n    override\n    returns (\n      uint80 roundId,\n      int256 answer,\n      uint256 startedAt,\n      uint256 updatedAt,\n      uint80 answeredInRound\n    )\n  {\n    return (_roundId, getAnswer[_roundId], getStartedAt[_roundId], getTimestamp[_roundId], _roundId);\n  }\n\n  function latestRoundData()\n    external\n    view\n    override\n    returns (\n      uint80 roundId,\n      int256 answer,\n      uint256 startedAt,\n      uint256 updatedAt,\n      uint80 answeredInRound\n    )\n  {\n    return (\n      uint80(latestRound),\n      getAnswer[latestRound],\n      getStartedAt[latestRound],\n      getTimestamp[latestRound],\n      uint80(latestRound)\n    );\n  }\n\n  function description() external pure override returns (string memory) {\n    return \"v0.8/tests/MockV3Aggregator.sol\";\n  }\n}\n"
+    },
+    "contracts/FundMeWithLibrary.sol": {
+      "content": "// SPDX-License-Identifier: MIT\n// 1. Pragma\npragma solidity ^0.8.7;\n\n// Objective:\n// 1.\n\n// Notes:\n// A.\n\n// 2. Imports\nimport \"./PriceConverter(ALibrary).sol\";\n\n// 3. Error codes // Syntax: error ContractName__ErrorName();\nerror FundMeWithLibrary__NotOwner();\n\n// 4. Interfaces; 5. Libraries; 6. Contracts\n\n// Natspec syntax for documentation\n/** @title A contract for crowd funding\n * @author Jatin Kalra\n * @notice This is a demo funding contract\n * @dev This contract uses price feeds as library\n */\ncontract FundMeWithLibrary {\n    // 6(i). Type Declarations\n    using PriceConverter for uint256;\n\n    // 6(ii). State variables\n    address[] public funders; // Array(1/2)\n    mapping(address => uint256) public addressToAmountFunded; // Mapping(1/2)\n\n    uint256 public constant MINIMUM_USD = 50;\n\n    address public immutable i_Owner; // Global variable\n    AggregatorV3Interface public priceFeed; // Global variable\n\n    // 6(iii). Events\n    // 6(iv). Modifiers\n    // Modifier to ease-up owner process. 2(i)\n    modifier onlyOwner() {\n        if (msg.sender != i_Owner) {\n            revert FundMeWithLibrary__NotOwner();\n        }\n        _;\n    }\n\n    //  6.v.1. constructor\n    constructor(address priceFeedAddress) {\n        //PriceFeedAddress paramater to easily change chains\n        i_Owner = msg.sender;\n        priceFeed = AggregatorV3Interface(priceFeedAddress);\n    }\n\n    //  6.v.2. receive\n    receive() external payable {\n        fundUSD();\n    }\n\n    //  6.v.3. fallback\n    fallback() external payable {\n        fundUSD();\n    }\n\n    //  6.v.4. external\n    //  6.v.5. public\n\n    /**\n     * @notice fundUSD() function funds this contract\n     * @dev This implements price feeds as our library\n     */\n    function fundUSD() public payable {\n        require(\n            msg.value.getConversionRate(priceFeed) >= MINIMUM_USD,\n            \"Minimum is 50 USD!\"\n        );\n        funders.push(msg.sender); // Array(2/2)\n        addressToAmountFunded[msg.sender] += msg.value; // Mapping(2/2)\n    }\n\n    // 2. Withdraw funds\n\n    /**\n     * @notice This withdraws the funds from the contract\n     * @dev Array and mapping are emptied and call function is used to withdraw\n     */\n    function withdraw() public onlyOwner {\n        // Resetting mapping\n        for (\n            uint256 funderIndex = 0;\n            funderIndex < funders.length;\n            funderIndex = funderIndex++ /*ie funderIndex + 1*/\n        ) {\n            /* starting index, ending index, step amount */\n            address funder = funders[funderIndex];\n            addressToAmountFunded[funder] = 0;\n        }\n        // Resetting array (instead of looping and deleting, a complete refresh is done)\n        funders = new address[](0);\n\n        // Withdraw the funds (3 ways to do)\n\n        (bool callSuccess /* bytes memory dataReturned */, ) = payable(\n            msg.sender\n        ).call{value: address(this).balance}(\"\"); // no data taken here\n        require(callSuccess, \"Call failed\");\n    }\n\n    // 6.v.6. internal\n    // 6.v.7. private\n    // 6.v.8. view / pure\n}\n"
+    },
+    "contracts/mock-test/MockV3Aggregator.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.0; // imported pacakage version\n\nimport \"@chainlink/contracts/src/v0.8/tests/MockV3Aggregator.sol\";\n"
+    },
+    "contracts/PriceConverter(ALibrary).sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.7;\n\n// Objective:\n// Acts as a library for \".contracts/FundMeWithLibrary.sol\"\n// Refactoring to modularize our code to be chain-agnostic || `priceFeed` use in parameters\n\n// Notes:\n// AggregatorV3interface is an interface which gets compiled down to an ABI\n// AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306) is ABI and Address, which makes priceFeed a contract\n// Global variables are set outside any function and can be called by other contracts via inheritance or library calls.\n\nimport \"@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol\";\n\nlibrary PriceConverter {\n    // To fetch the chainlink oracle price of ETH/USD Sepolia\n    function getPrice(\n        AggregatorV3Interface priceFeed\n    ) internal view returns (uint256) {\n        (, int256 price, , , ) = priceFeed.latestRoundData();\n        return uint256(price / 1e10); // Price feed gives 10 decimal places || type-casting to uint256 for uniformity.\n    }\n\n    // To convert msg.value in USD price\n    function getConversionRate(\n        uint256 ethAmount,\n        AggregatorV3Interface priceFeed\n    ) internal view returns (uint256) {\n        // Ex: 3000 = ETH/USD price; ethAmount = 2_000000000000000000 = 2*1e18\n        uint256 ethPrice = getPrice(priceFeed); // 3000\n        uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1e18; // (3000 * 2_000000000000000000) / 1e18\n        return ethAmountInUsd; // 6000\n    }\n\n    // just to check if the interface is imported correctly\n    // function getPriceDecimals() internal view returns (uint256){\n    //     // AggregatorV3Interface as a type here\n    //     AggregatorV3Interface priceFeed = AggregatorV3Interface(0x694AA1769357215DE4FAC081bf1f309aDC325306);\n    //     return priceFeed.decimals();\n    // }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

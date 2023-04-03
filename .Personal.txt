@@ -1,0 +1,55 @@
+// Setup:
+// yarn add --dev hardhat
+// yarn hardhat
+// yarn add --dev @nomiclabs/hardhat-waffle ethereum-waffle hardhat-gas-reporter prettier prettier-plugin-solidity solhint solidity-coverage @nomiclabs/hardhat-ethers ethers dotenv @nomiclabs/hardhat-waffle ethereum-waffle hardhat-gas-reporter prettier prettier-plugin-solidity solhint solidity-coverage
+// yarn solhint --init   // "./.solhint.json is imported"
+// yarn global add solhint
+// yarn add --dev @chainlink/contracts
+// yarn hardhat compile
+// yarn add --dev hardhat-deploy
+// yarn add --dev @nomiclabs/hardhat-ethers@npm:hardhat-deploy-ethers ethers
+// Deleted the "./deploy.js" file and created "./deploy" folder
+// "./deploy" folders: "./00-deploy-mocks.js" & "./01-deploy-fund-me.js"
+// Create file: "./helper-hardhat-config.js" for chain-agnostic chainId's
+// Create folder "./mock-test" under "./contracts" folder. Reason: Seperate from actual contract
+// Create mock-test file "./MockV3Aggregator.sol"
+// Once the deploy scripts are written, run `yarn hardhat node` to run a local node with all script's data incorporated
+// For auto-verification, create and use "utils/verify.js" too.
+// To deploy on more chains: Update the "./helper-hardhat-config.js" and "./hardhat-config.js" files.
+// Create folders under "test": "./staging" and "./unit"
+// Unit tests are done locally to test individual units of source code; Staging tests are done on a testnet (Last Stop!!)
+// Unit tests can be done on: Local hardhat network & forked hardhat network
+
+// Objective:
+
+// Notes:
+// `yarn hardhat compile`: Compiles the "./deploy" folder.
+// hardhat deploy layout: 1. Import; 2. function || No `main` fuction or calling of it; instead defaultness is used
+// Mocking: Testing different units on localhost or hardhat network
+// Both "../hardhat-config.js" & "../helper-hardhat-config.js" needs to updated with chain details, then `yarn hardhat deploy --network chainName`
+// tags help in executing only specific scripts: `yarn hardhat deploy --tags mocks`. Code: `module.exports.tags = ["all", "mocks"];`
+// Use tests to optimize the code and make it gas-efficient
+
+// Solidity Style Guide: https://docs.soliditylang.org/en/latest/style-guide.html & https://docs.soliditylang.org/en/latest/natspec-format.html 
+// Natspec helps in documentation of code
+// Layout:
+1. Pragma
+2. Imports
+3. Error codes // Syntax: error ContractName__ErrorName();
+4. Interfaces
+5. Libraries
+6. Contracts
+6(i). Type declarations
+6(ii). State variables
+6(iii). Events
+6(iv). Modifiers
+6(v). Functions
+ Functions Order:
+ 6.v.1. constructor
+ 6.v.2. receive
+ 6.v.3. fallback
+ 6.v.4. external
+ 6.v.5. public
+ 6.v.6. internal
+ 6.v.7. private
+ 6.v.8. view / pure
