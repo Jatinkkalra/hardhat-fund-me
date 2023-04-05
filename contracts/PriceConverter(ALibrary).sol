@@ -18,7 +18,7 @@ library PriceConverter {
         AggregatorV3Interface priceFeed
     ) internal view returns (uint256) {
         (, int256 price, , , ) = priceFeed.latestRoundData();
-        return uint256(price / 1e10); // Price feed gives 10 decimal places || type-casting to uint256 for uniformity.
+        return uint256(price * 1e10); // Price feed gives 10 decimal places || type-casting to uint256 for uniformity.
     }
 
     // To convert msg.value in USD price
@@ -27,9 +27,9 @@ library PriceConverter {
         AggregatorV3Interface priceFeed
     ) internal view returns (uint256) {
         // Ex: 3000 = ETH/USD price; ethAmount = 2_000000000000000000 = 2*1e18
-        uint256 ethPrice = getPrice(priceFeed); // 3000
-        uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1e18; // (3000 * 2_000000000000000000) / 1e18
-        return ethAmountInUsd; // 6000
+        uint256 ethPrice = getPrice(priceFeed); // 3000_000000000000000000
+        uint256 ethAmountInUsd = (ethPrice * ethAmount) / 1e18; // (3000_000000000000000000 * 2_000000000000000000) / 1e18
+        return ethAmountInUsd; // 6000_000000000000000000
     }
 
     // just to check if the interface is imported correctly

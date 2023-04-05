@@ -30,7 +30,7 @@ contract FundMeWithLibrary {
     address[] public funders; // Array(1/2)
     mapping(address => uint256) public addressToAmountFunded; // Mapping(1/2)
 
-    uint256 public constant MINIMUM_USD = 50;
+    uint256 public constant MINIMUM_USD = 50 * 1e18;
 
     address public immutable i_Owner; // Global variable
     AggregatorV3Interface public priceFeed; // Global variable

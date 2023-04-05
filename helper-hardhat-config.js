@@ -18,7 +18,7 @@ const networkConfig = {
 // Chains we can deploy mocks on
 const developmentChains = ["hardhat", "localhost"];
 const DECIMALS = 8;
-const INITIAL_ANSWER = 2000;
+const INITIAL_ANSWER = 200000000000;
 
 // exporting so that others scripts can use it:
 module.exports = {
