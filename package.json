@@ -1,4 +1,8 @@
 {
+  "name": "hardhat-fund-me",
+  "author": "Jatin Kalra",
+  "version": "1.0.0",
+  
   "devDependencies": {
     "@chainlink/contracts": "0.4.2",
     "@ethersproject/abi": "^5.4.7",
@@ -25,5 +29,13 @@
   },
   "dependencies": {
     "ethers": "5.7.2"
+  },
+  "scripts": {
+    "test" : "yarn hardhat test",
+    "test:staging" : "yarn hardhat test --network sepolia",
+    "lint": "yarn solhint 'contracts/*.sol'",
+    "lint:fix": "yarn solhint 'contracts/*.sol' --fix",
+    "format": "yarn prettier --write .",
+    "coverage": "yarn hardhat coverage"
   }
 }
