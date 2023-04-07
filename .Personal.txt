@@ -24,6 +24,18 @@
     // Act (2/3)
     // Assert (3/3)
 
+// Gas-Optimisation
+    // State variables (global variables aka storage variables) naming convention helps in gas-optimisation
+    // Constant and Immutable variables don't take storage space
+    // Local variables (aka variables inside functions) also don't take storage space
+    // Same for memory string variables
+    // Storage costs the most gas. Naming convention: s_name. Source: https://github.com/crytic/evm-opcodes
+    // mappings can't be in memory
+    // Private and internal variables are gas-savings
+    // Use `revert()` instead of `require()` for error codes.
+
+
+
 // Objective:
 
 // Notes:
